@@ -105,7 +105,9 @@ const UnreadDMs = observer(({ client, permit }: Props) => {
 
     return (
         <List>
-            {channels.map((channel) => (
+        {channels
+            .filter(channel => channel.recipient?.username !== undefined)
+            .map((channel) => (
                 <Link key={channel._id} to={`/channel/${channel._id}`}>
                     <ChannelInner channel={channel} permit={permit} />
                 </Link>
