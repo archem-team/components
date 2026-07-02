@@ -6,18 +6,57 @@ import { DraggableProps } from "../../../../common";
 
 import { Avatar } from "../../../atoms";
 import { Unreads } from "../../../atoms/indicators/Unreads";
-import { Swoosh } from "./Swoosh";
 import { useLink, useTrigger } from "../../../../../lib/context";
 import { Tooltip } from "../../../atoms/indicators/Tooltip";
 import { INotificationChecker } from "revolt.js/dist/util/Unreads";
 
-export const ItemContainer = styled.div<{ head?: boolean }>`
+export const ItemContainer = styled.div<{
+    head?: boolean;
+    indicator?: "selected" | "alert";
+}>`
     width: 56px;
     padding-left: 7px;
     padding-right: 7px;
     padding-bottom: 6px;
 
     cursor: pointer;
+    position: relative;
+
+    /* Selection indicator: a rounded sliver hugging the rail edge that
+       grows with state — 16px on hover, 8px when unread, 32px when the
+       server is open. */
+    &::before {
+        content: " ";
+        position: absolute;
+        left: -8px;
+        width: 12px;
+        height: 0;
+        top: ${(props) => (props.head ? "27px" : "21px")};
+        transform: translateY(-50%);
+        border-radius: 4px;
+        background: var(--foreground);
+        transition: 0.15s ease height;
+    }
+
+    &:hover::before {
+        height: 16px;
+    }
+
+    ${(props) =>
+        props.indicator === "alert" &&
+        css`
+            &::before {
+                height: 8px;
+            }
+        `}
+
+    ${(props) =>
+        props.indicator === "selected" &&
+        css`
+            &::before {
+                height: 32px !important;
+            }
+        `}
 
     ${(props) =>
         props.head &&
@@ -25,24 +64,6 @@ export const ItemContainer = styled.div<{ head?: boolean }>`
             padding-top: 6px;
         `}
 `;
-
-const SwooshWrapper = styled.div`
-    position: absolute;
-    left: -7px;
-    top: -32px;
-
-    z-index: -1;
-`;
-
-export function SwooshOverlay() {
-    return (
-        <div style={{ position: "relative" }}>
-            <SwooshWrapper>
-                <Swoosh />
-            </SwooshWrapper>
-        </div>
-    );
-}
 
 const Inner = observer(({ item, permit }: InnerProps) => {
     const Link = useLink();
@@ -78,15 +99,26 @@ type Props = DraggableProps<Server> &
         active: boolean;
     };
 
-export function Item({ provided, isDragging, active, ...innerProps }: Props) {
-    return (
-        <ItemContainer
-            {...provided.draggableProps}
-            {...provided.dragHandleProps}
-            ref={provided.innerRef}
-            style={provided.draggableProps.style}>
-            {active && <SwooshOverlay />}
-            <Inner {...innerProps} />
-        </ItemContainer>
-    );
-}
+export const Item = observer(
+    ({ provided, isDragging, active, ...innerProps }: Props) => {
+        const unread = !!innerProps.item.isUnread(innerProps.permit);
+        const count = innerProps.item.getMentions(innerProps.permit).length;
+
+        return (
+            <ItemContainer
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+                ref={provided.innerRef}
+                style={provided.draggableProps.style}
+                indicator={
+                    active
+                        ? "selected"
+                        : unread || count > 0
+                        ? "alert"
+                        : undefined
+                }>
+                <Inner {...innerProps} />
+            </ItemContainer>
+        );
+    },
+);

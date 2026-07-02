@@ -10,10 +10,10 @@ import { Avatar, LineDivider, UserStatus } from "../../../atoms";
 import { Tooltip } from "../../../atoms/indicators/Tooltip";
 import { Unreads } from "../../../atoms/indicators/Unreads";
 import { UserTooltip } from "../../../atoms/indicators/UserTooltip";
-import { ItemContainer, SwooshOverlay } from "./Item";
+import { ItemContainer } from "./Item";
 import { Props } from "./ServerList";
 
-const UserItem = observer(({ client, home, active }: Props) => {
+const UserItem = observer(({ client, home }: Props) => {
     const Link = useLink();
     const Trigger = useTrigger();
 
@@ -26,7 +26,6 @@ const UserItem = observer(({ client, home, active }: Props) => {
 
     return (
         <Link to={home()}>
-            {!active && <SwooshOverlay />}
             <UserTooltip user={client.user!} div right>
                 <Trigger id="Status">
                     <Avatar
@@ -118,7 +117,9 @@ const UnreadDMs = observer(({ client, permit }: Props) => {
 
 export function ListHeader(props: Props) {
     return (
-        <ItemContainer head>
+        <ItemContainer
+            head
+            indicator={!props.active ? "selected" : undefined}>
             <UserItem {...props} />
             <UnreadDMs {...props} />
             <LineDivider compact />
