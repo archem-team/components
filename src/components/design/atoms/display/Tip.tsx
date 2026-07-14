@@ -14,7 +14,7 @@ export const TipBase = styled.div<Omit<Props, "children">>`
     font-size: 0.875rem;
     font-weight: 500;
     overflow: hidden;
-    background: var(--primary-header);
+    background: var(--message-box);
     border-radius: var(--border-radius);
     user-select: none;
 

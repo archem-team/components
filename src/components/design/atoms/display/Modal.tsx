@@ -144,7 +144,7 @@ const Actions = styled.div`
     padding: 1rem;
     flex-direction: row-reverse;
 
-    background: var(--secondary-background);
+    background: var(--primary-background);
     border-radius: 0 0 var(--border-radius) var(--border-radius);
 `;
 

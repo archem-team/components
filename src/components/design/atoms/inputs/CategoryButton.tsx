@@ -82,7 +82,7 @@ const Base = styled.a<BaseProps>`
                   transition: 0.1s ease background-color;
 
                   &:hover {
-                      background: var(--secondary-background);
+                      background: rgba(var(--foreground-rgb), 0.06);
                   }
               `}
 

@@ -13,7 +13,7 @@ export const TextArea = styled.textarea<TextAreaProps>`
     display: block;
     font-size: 14px;
     color: var(--foreground);
-    background: var(--secondary-background);
+    background: #141619;
 
     padding: ${(props) => props.padding ?? "var(--textarea-padding)"};
     line-height: ${(props) =>

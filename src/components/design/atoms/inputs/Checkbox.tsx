@@ -20,7 +20,7 @@ const Base = styled.label`
     }
 
     &:hover {
-        background: var(--secondary-background);
+        background: var(--message-box);
 
         .playSound {
             visibility: visible;
@@ -105,7 +105,7 @@ const Checkmark = styled.div<Pick<Props, "value">>`
     height: 24px;
     border: 2px solid var(--tertiary-foreground);
     border-radius: var(--border-radius);
-    background: var(--secondary-background);
+    background: var(--message-box);
     flex-shrink: 0;
     margin: 4px;
     transition: 0.1s ease-in-out all;

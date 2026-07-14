@@ -71,7 +71,7 @@ export const Button = styled.button<Props>`
                     }
 
                     &:active {
-                        background: var(--secondary-background);
+                        background: var(--primary-background);
                     }
                 `;
             case "plain":
@@ -131,7 +131,7 @@ export const Button = styled.button<Props>`
                     }
 
                     &:active {
-                        background: var(--secondary-background);
+                        background: var(--primary-background);
                     }
                 `;
         }

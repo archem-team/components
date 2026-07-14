@@ -15,7 +15,7 @@ const SwitchContainer = styled.div.attrs({
     margin: 4px 0;
     overflow: hidden;
     border-radius: var(--border-radius);
-    background: var(--secondary-background);
+    background: var(--message-box);
     border: 1px solid var(--tertiary-background);
 
     ${(props) =>

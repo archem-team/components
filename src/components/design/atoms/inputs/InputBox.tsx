@@ -32,15 +32,15 @@ export const InputBox = styled.input<Props>`
         props.palette === "primary"
             ? css`
                   color: var(--foreground);
-                  background: var(--primary-background);
+                  background: #141619;
 
                   &:hover {
-                      background: var(--secondary-background);
+                      background: var(--hover);
                   }
               `
             : css`
                   color: var(--secondary-foreground);
-                  background: var(--secondary-background);
+                  background: #141619;
 
                   &:hover {
                       background: var(--hover);
