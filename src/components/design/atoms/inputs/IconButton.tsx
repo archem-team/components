@@ -47,7 +47,11 @@ export const IconButton = styled.a<Props>`
             background-color: var(--secondary-header);
 
             &:hover {
-                background-color: var(--primary-header);
+                background-color: color-mix(
+                    in srgb,
+                    var(--secondary-header),
+                    var(--foreground) 10%
+                );
             }
         `}
 

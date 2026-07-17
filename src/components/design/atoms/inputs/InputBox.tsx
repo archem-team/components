@@ -32,7 +32,7 @@ export const InputBox = styled.input<Props>`
         props.palette === "primary"
             ? css`
                   color: var(--foreground);
-                  background: #141619;
+                  background: var(--surface-sunken, #100518);
 
                   &:hover {
                       background: var(--hover);
@@ -40,7 +40,7 @@ export const InputBox = styled.input<Props>`
               `
             : css`
                   color: var(--secondary-foreground);
-                  background: #141619;
+                  background: var(--surface-sunken, #100518);
 
                   &:hover {
                       background: var(--hover);

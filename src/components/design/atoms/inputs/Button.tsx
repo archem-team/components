@@ -63,7 +63,11 @@ export const Button = styled.button<Props>`
                     background: var(--secondary-header);
 
                     &:hover {
-                        background: var(--primary-header);
+                        background: color-mix(
+                            in srgb,
+                            var(--secondary-header),
+                            var(--foreground) 10%
+                        );
                     }
 
                     &:disabled {
