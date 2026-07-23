@@ -40,7 +40,10 @@ export const InputBox = styled.input<Props>`
               `
             : css`
                   color: var(--secondary-foreground);
-                  background: var(--surface-sunken, #100518);
+                  /* One step above the panel (as production renders it) —
+                     a sunken well here matches the panel exactly and the
+                     input disappears. */
+                  background: var(--secondary-background);
 
                   &:hover {
                       background: var(--hover);
