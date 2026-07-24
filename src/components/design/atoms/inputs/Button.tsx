@@ -56,26 +56,46 @@ export const Button = styled.button<Props>`
 
     ${(props) => {
         switch (props.palette) {
+            // Neutral buttons are mixed off --primary-background rather than
+            // painted with a surface token: they most often sit ON
+            // --primary-background (modal action bars, settings panes), where
+            // the old --secondary-header/--primary-background fills were a
+            // near-invisible 1.0-1.1:1 against the surface behind them.
+            // Mixing toward --foreground lifts them on dark themes and
+            // deepens them on light ones. Secondary stays the louder of the
+            // two, as before.
             case "secondary":
                 return css`
                     font-weight: 500;
                     color: var(--foreground);
-                    background: var(--secondary-header);
+                    background: color-mix(
+                        in srgb,
+                        var(--primary-background),
+                        var(--foreground) 14%
+                    );
 
                     &:hover {
                         background: color-mix(
                             in srgb,
-                            var(--secondary-header),
-                            var(--foreground) 10%
+                            var(--primary-background),
+                            var(--foreground) 20%
                         );
                     }
 
                     &:disabled {
-                        background: var(--secondary-header);
+                        background: color-mix(
+                            in srgb,
+                            var(--primary-background),
+                            var(--foreground) 14%
+                        );
                     }
 
                     &:active {
-                        background: var(--primary-background);
+                        background: color-mix(
+                            in srgb,
+                            var(--primary-background),
+                            var(--foreground) 8%
+                        );
                     }
                 `;
             case "plain":
@@ -124,18 +144,34 @@ export const Button = styled.button<Props>`
                 return css`
                     font-weight: 500;
                     color: var(--foreground);
-                    background: var(--primary-background);
+                    background: color-mix(
+                        in srgb,
+                        var(--primary-background),
+                        var(--foreground) 8%
+                    );
 
                     &:hover {
-                        background: var(--secondary-header);
+                        background: color-mix(
+                            in srgb,
+                            var(--primary-background),
+                            var(--foreground) 11%
+                        );
                     }
 
                     &:disabled {
-                        background: var(--primary-background);
+                        background: color-mix(
+                            in srgb,
+                            var(--primary-background),
+                            var(--foreground) 8%
+                        );
                     }
 
                     &:active {
-                        background: var(--primary-background);
+                        background: color-mix(
+                            in srgb,
+                            var(--primary-background),
+                            var(--foreground) 4%
+                        );
                     }
                 `;
         }

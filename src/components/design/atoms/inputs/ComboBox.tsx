@@ -26,6 +26,6 @@ export const ComboBox = styled.select`
     transition: 0.1s ease-in-out all;
 
     &:focus-visible {
-        box-shadow: 0 0 0 1.5pt var(--accent);
+        box-shadow: 0 0 0 1.5pt var(--focus-ring, var(--accent));
     }
 `;

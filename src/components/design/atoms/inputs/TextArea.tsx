@@ -39,7 +39,8 @@ export const TextArea = styled.textarea<TextAreaProps>`
         ${(props) =>
             !props.hideBorder &&
             css`
-                border: var(--input-border-width) solid var(--accent);
+                border: var(--input-border-width) solid
+                    var(--focus-ring, var(--accent));
             `}
     }
 
