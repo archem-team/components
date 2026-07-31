@@ -6,7 +6,9 @@ const Base = styled.div<{ unread?: boolean }>`
     align-items: center;
     height: 0;
     margin: 17px 12px 5px;
-    border-top: thin solid var(--tertiary-foreground);
+    /* Surface grey, not text grey: a full-width hairline in the text
+       colour glows against the dark theme. */
+    border-top: thin solid var(--tertiary-background);
     user-select: none;
 
     time {
