@@ -1,7 +1,7 @@
 import { observable } from "mobx";
 import React, { memo, useMemo, useRef, useState } from "react";
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from "react-virtuoso";
-import styled from "styled-components";
+import styled, { keyframes } from "styled-components";
 
 import useCloseHook from "../../../../lib/closeHook";
 
@@ -60,6 +60,17 @@ interface Props {
 const ROW_SIZE = 8;
 
 /**
+ * Entrance: quick scale from the trigger's corner (the emoji button sits
+ * at the bottom-right), per-popover origin awareness.
+ */
+const pickerIn = keyframes`
+    from {
+        opacity: 0;
+        transform: scale(0.97) translateY(4px);
+    }
+`;
+
+/**
  * Base layout of the picker
  */
 const Base = styled(Column)`
@@ -67,25 +78,58 @@ const Base = styled(Column)`
     user-select: none;
     position: absolute;
 
+    /* Above in-message stackers (the Button atom is z-index 1, so invite
+       embeds' Join buttons paint over DOM order) and the floating bars
+       (z-index 2) — a popover outranks both. */
+    z-index: 3;
+
     right: 10px;
     bottom: 10px;
 
-    // row width + scrollbar + group selector
-    width: calc(${ROW_SIZE} * 40px + 10px + 40px);
-    height: 420px;
+    // rows + row padding + scrollbar + group selector
+    width: calc(${ROW_SIZE} * 40px + 12px + 10px + 44px);
+    height: 440px;
 
     max-width: calc(100vw - 20px);
     max-height: calc(75vh);
 
+    /* One flat surface for the whole panel (sheet colour, one elevation
+       step above the recessed chat panel); separation comes from the
+       drop shadow alone — no ring, no contrasting strips. */
     background: var(--background);
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-xl, 20px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.45);
+
+    transform-origin: bottom right;
+    animation: ${pickerIn} 140ms cubic-bezier(0.23, 1, 0.32, 1);
+
+    @media (prefers-reduced-motion: reduce) {
+        animation: none;
+    }
 `;
 
 /**
  * Top search controls parent component
  */
 const Controls = styled(Column)`
-    padding: 0.5em;
+    padding: 10px 10px 6px;
+
+    /* Search field speaks the header search-pill language. */
+    input {
+        padding: 9px 14px;
+        font-size: 0.9em;
+        border-radius: var(--radius-xl, 20px);
+        background: var(--primary-header);
+
+        &::placeholder {
+            color: var(--secondary-foreground);
+        }
+
+        &:hover,
+        &:focus-visible {
+            background: var(--primary-header);
+        }
+    }
 `;
 
 /**
@@ -97,19 +141,33 @@ const Parent = styled.div`
 
     display: flex;
     flex-direction: row;
+
+    /* Thin scrollbar inside the popover. */
+    div::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    div::-webkit-scrollbar-thumb {
+        border-radius: 4px;
+        background: var(--scrollbar-thumb);
+        background-clip: padding-box;
+        border: 2px solid transparent;
+    }
 `;
 
 /**
  * Group selector
  */
 const Groups = styled.div`
-    width: 40px;
+    width: 44px;
 
     overflow-y: scroll;
     scrollbar-width: none;
 
-    background: var(--secondary-background);
-    border-start-start-radius: var(--border-radius);
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    padding: 4px 0;
 
     &::-webkit-scrollbar {
         width: 0px;
@@ -127,20 +185,22 @@ const EmojiContainer = styled.a`
     height: 40px;
 
     cursor: pointer;
-    transition: 0.1s ease all;
-    border-radius: var(--border-radius);
+    border-radius: var(--radius-md, 8px);
+    transition: background-color 80ms ease, transform 100ms ease-out;
 
-    &:hover {
-        background: var(--tertiary-background);
+    @media (hover: hover) and (pointer: fine) {
+        &:hover {
+            background: var(--nav-hover, var(--tertiary-background));
+        }
     }
 
     &:active {
-        filter: brightness(0.9);
+        transform: scale(0.94);
     }
 
     img {
-        width: 28px;
-        height: 28px;
+        width: 27px;
+        height: 27px;
         object-fit: contain;
     }
 `;
@@ -159,33 +219,48 @@ const RowContainer = styled.div`
 const CategoryBar = styled.div`
     display: flex;
     align-items: center;
+    gap: 6px;
+    padding: 12px 8px 4px;
     background: var(--background);
 `;
 
 /**
  * Custom component for category icon
  */
-const CategoryIcon = styled.div`
+const CategoryIcon = styled.div<{ size?: number }>`
     display: grid;
     place-items: center;
 
-    width: 40px;
-    height: 40px;
+    width: ${(props) => props.size ?? 16}px;
+    height: ${(props) => props.size ?? 16}px;
 
     user-select: none;
     pointer-events: none;
-    filter: brightness(0.75);
+
+    img {
+        width: 100%;
+        height: 100%;
+        object-fit: contain;
+    }
 `;
 
 /**
  * Custom component for category name
  */
 const CategoryName = styled.span`
-    width: 100%;
-    padding: 0 0.2em;
+    min-width: 0;
+    flex-grow: 1;
     text-align: left;
-    color: var(--foreground);
-    filter: brightness(0.75);
+
+    font-size: 0.75em;
+    font-weight: 600;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+    color: var(--secondary-foreground);
+
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
 `;
 
 /**
@@ -315,21 +390,21 @@ export function Picker({
     // Component for rendering group icons
     const Icon = useMemo(
         () =>
-            memo(({ category }: { category: Category }) => (
-                <CategoryIcon>
-                    {category.emoji ? (
-                        <EmojiContainer>
+            memo(
+                ({ category, size }: { category: Category; size?: number }) => (
+                    <CategoryIcon size={size}>
+                        {category.emoji ? (
                             <Emoji emoji={category.emoji} />
-                        </EmojiContainer>
-                    ) : (
-                        <Avatar
-                            size={24}
-                            fallback={category.name}
-                            src={category.iconURL}
-                        />
-                    )}
-                </CategoryIcon>
-            )),
+                        ) : (
+                            <Avatar
+                                size={size ?? 16}
+                                fallback={category.name}
+                                src={category.iconURL}
+                            />
+                        )}
+                    </CategoryIcon>
+                ),
+            ),
         [Emoji],
     );
 
@@ -351,7 +426,7 @@ export function Picker({
                     ref={ref}
                     style={{
                         flexGrow: 1,
-                        padding: "0 2px",
+                        padding: "0 6px",
                         overflowX: "hidden",
                     }}
                     components={{
@@ -377,7 +452,7 @@ export function Picker({
                             onClick={() =>
                                 ref.current?.scrollToIndex({ groupIndex })
                             }>
-                            <Icon category={cat} />
+                            <Icon category={cat} size={20} />
                         </EmojiContainer>
                     ))}
                 </Groups>
