@@ -1,7 +1,7 @@
 import { observable } from "mobx";
 import React, { memo, useMemo, useRef, useState } from "react";
 import { GroupedVirtuoso, GroupedVirtuosoHandle } from "react-virtuoso";
-import styled, { keyframes } from "styled-components";
+import styled, { css, keyframes } from "styled-components";
 
 import useCloseHook from "../../../../lib/closeHook";
 
@@ -51,6 +51,12 @@ interface Props {
      * Handle clicking outside of picker
      */
     onClose?: () => void;
+
+    /**
+     * Render without the floating panel chrome, for use inside a
+     * surface that already provides it.
+     */
+    embedded?: boolean;
 }
 
 /**
@@ -73,7 +79,24 @@ const pickerIn = keyframes`
 /**
  * Base layout of the picker
  */
-const Base = styled(Column)`
+/**
+ * Drops the panel chrome so the picker can sit inside a surface that
+ * already provides it (the composer's tabbed emoji/GIF panel), instead
+ * of floating as a second sheet on top of one.
+ */
+const embeddedChrome = css`
+    position: static;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    background: transparent;
+    border-radius: 0;
+    box-shadow: none;
+    animation: none;
+`;
+
+const Base = styled(Column)<{ embedded?: boolean }>`
     overflow: hidden;
     user-select: none;
     position: absolute;
@@ -106,6 +129,8 @@ const Base = styled(Column)`
     @media (prefers-reduced-motion: reduce) {
         animation: none;
     }
+
+    ${(props) => props.embedded && embeddedChrome}
 `;
 
 /**
@@ -292,6 +317,7 @@ export function Picker({
     renderEmoji: Emoji,
     onSelect,
     onClose,
+    embedded,
 }: Props) {
     // Take a ref of Virtuoso for scrolling to groups
     const ref = useRef<GroupedVirtuosoHandle>(null);
@@ -412,7 +438,7 @@ export function Picker({
     const baseRef = useCloseHook(onClose);
 
     return (
-        <Base gap="0" ref={baseRef}>
+        <Base gap="0" ref={baseRef} embedded={embedded}>
             <Controls>
                 <InputBox
                     autoFocus
