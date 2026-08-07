@@ -63,7 +63,7 @@ interface Props {
  * Hard-coded row size
  * ! FIXME: this will be calculated automatically later I guess
  */
-const ROW_SIZE = 8;
+const ROW_SIZE = 9;
 
 /**
  * Entrance: quick scale from the trigger's corner (the emoji button sits
